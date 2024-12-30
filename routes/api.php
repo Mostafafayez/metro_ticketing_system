@@ -23,6 +23,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/tickets', [TicketController::class, 'addTicket']);
     Route::get('/tickets', [TicketController::class, 'getAllTickets']);
     Route::get('/tickets/user', [TicketController::class, 'getTicketsByUser']);
+    Route::get('/tickets/all/users', [TicketController::class, 'getTickets']);
     Route::delete('/tickets/{id}', [TicketController::class, 'deleteTicket']);
     Route::post('/tickets/{id}', [TicketController::class, 'updateTicket']);
     Route::post('/tickets/buy', [TicketController::class, 'buyTicket']);

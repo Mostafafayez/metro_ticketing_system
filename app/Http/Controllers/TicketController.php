@@ -51,6 +51,15 @@ class TicketController extends Controller
         return response()->json($tickets);
     }
 
+    public function getTickets()
+    {
+        $ticket = Ticket::with('user')->get();
+
+        return response()->json($ticket);
+    }
+
+
+
     /**
      * Delete a ticket by ID.
      */
