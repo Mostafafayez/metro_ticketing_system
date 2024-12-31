@@ -57,7 +57,7 @@ class User extends Authenticatable
 
     public function tickets()
     {
-        return $this->belongsToMany(Ticket::class);
+        return $this->belongsToMany(Ticket::class)->withPivot('count','status_of_payment','status_of_received');
     }
 
     public function cards()
