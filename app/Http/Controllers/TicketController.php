@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Ticket;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class TicketController extends Controller
 {
@@ -107,6 +108,12 @@ class TicketController extends Controller
 
 
         ]);
+
+        // try {
+        //     $ticket = Ticket::findOrFail($validated['ticket_id']);
+        // } catch (ModelNotFoundException $e) {
+        //     return response()->json(['message' => 'Ticket not found'], 404);
+        // }
 
         $user = Auth::user();
         $user->tickets()->attach($validated['ticket_id'], [
