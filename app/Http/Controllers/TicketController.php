@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Ticket;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-
+use Illuminate\Support\Facades\DB;
 class TicketController extends Controller
 {
     /**
@@ -127,40 +127,44 @@ class TicketController extends Controller
     /**
      * Update ticket status in pivot table.
      */
-    public function updateTicketStatus(Request $request, $pivotId)
+    public function approveStatus($ticket_user_id)
     {
-        // Validate the request
-        $validated = $request->validate([
-            'status_of_received' => 'required|boolean',
-        ]);
+        // Validate the ticket_user_id exists in the pivot table
+        $ticketUser = DB::table('ticket_user')->where('id', $ticket_user_id)->first();
 
-        // Get the authenticated user
-        $user = Auth::user();
-
-        // Find the pivot record using the pivot table's unique ID
-        $affectedRows = $user->tickets()
-            ->wherePivot('id', $pivotId) // Target the specific row in the pivot table
-            ->updateExistingPivot($pivotId, [
-                'status_of_received' => $validated['status_of_received'],
-            ]);
-
-        // Check if any row was updated
-        if ($affectedRows === 0) {
-            return response()->json(['message' => 'Record not found'], 404);
+        if (!$ticketUser) {
+            return response()->json(['error' => 'Ticket User not found'], 404);
         }
 
-        // Return a success response
-        return response()->json(['message' => 'Ticket status updated successfully',$affectedRows]);
+        // Update status_of_received to 1
+        DB::table('ticket_user')
+            ->where('id', $ticket_user_id)
+            ->update(['status_of_received' => 1]);
+
+        return response()->json(['message' => 'Status approved successfully'], 200);
     }
+
+
 
     /**
      * Delete a ticket from pivot table.
      */
-    public function deleteUserTicket($ticketId)
-    {
-        $user = Auth::user();
-        $user->tickets()->detach($ticketId);
 
-        return response()->json(['message' => 'User ticket deleted successfully']);
-    }
+     public function deleteuserticket($ticket_user_id)
+     {
+         // Validate the ticket_user_id exists in the pivot table
+         $ticketUser = DB::table('ticket_user')->where('id', $ticket_user_id)->first();
+
+         if (!$ticketUser) {
+             return response()->json(['error' => 'Ticket User not found'], 404);
+         }
+
+         // delete user_ticket
+         DB::table('ticket_user')
+             ->where('id', $ticket_user_id)
+             ->delete();
+
+         return response()->json(['message' => 'Ticket User deleted successfully'], 200);
+     }
+
 }
