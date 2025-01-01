@@ -117,7 +117,7 @@ class CardController extends Controller
     // Check expiration for all users
     public function checkExpiresAtForAll()
     {
-        $cards = Card::with('user',)->all(['id', 'user_id', 'expires_at']);
+        $cards = Card::with('user')->get(['id', 'user_id', 'expires_at']);
 
         return response()->json($cards);
     }
