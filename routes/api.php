@@ -24,16 +24,16 @@ Route::get('/', [TicketController::class, 'getAllTickets']);
 Route::delete('/{id}', [TicketController::class, 'deleteTicket']);
 Route::post('/{id}', [TicketController::class, 'updateTicket']);
 
-Route::post('/buy', [TicketController::class, 'buyTicket']);
-Route::get('/user', [TicketController::class, 'getTicketsByUser']);
-Route::get('/all/users', [TicketController::class, 'getTickets']);
-Route::get('/approve-status/{ticket_user_id}', [TicketController::class, 'approveStatus']);
-Route::delete('/user/{ticket_user_id}', [TicketController::class, 'deleteUserTicket']);
+
 });
 
-
-
-
+Route::middleware('auth:sanctum')->prefix('tickets/user')->group(function () {
+Route::post('/buy', [TicketController::class, 'buyTicket']);
+Route::get('/', [TicketController::class, 'getTicketsByUser']);
+Route::get('/all', [TicketController::class, 'getTickets']);
+Route::get('/approve-status/{ticket_user_id}', [TicketController::class, 'approveStatus']);
+Route::delete('/{ticket_user_id}', [TicketController::class, 'deleteUserTicket']);
+});
 // Branches
 Route::middleware('auth:sanctum')->prefix('branches')->group(function () {
 Route::get('/', [BranchController::class, 'index']);
