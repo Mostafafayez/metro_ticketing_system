@@ -1,59 +1,137 @@
 <?php
-
-namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
-
 namespace App\Http\Controllers;
 
 use App\Models\Card;
-use App\Models\Payment;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 class CardController extends Controller
 {
-    // View user's card details
-    public function show($userId)
+
+
+    // Add a new card
+    public function store(Request $request)
     {
-        $card = Card::where('user_id', $userId)->first();
+        $request->validate([
+            'user_id' => 'required|integer',
+            'type' => 'required|in:wallet,subscription',
+            'remaining_tickets' => 'nullable|integer',
+            'balance' => 'nullable|numeric',
+            'expires_at' => 'nullable|date',
+        ]);
+
+        $card = Card::create($request->all());
+
+        return response()->json(['message' => 'Card created successfully', 'card' => $card], 201);
+    }
+
+    // Get all cards with relations
+    public function index()
+    {
+        $cards = Card::with('user')->get();
+        return response()->json($cards);
+    }
+
+    // Get a card by ID with relations
+    public function show()
+    {
+        $user = Auth::user();
+        $card = Card::with('user')->where('user_id',$user->id);
+
         if (!$card) {
-            return response()->json(['error' => 'Card not found'], 404);
+            return response()->json(['message' => 'Card not found'], 404);
         }
 
         return response()->json($card);
     }
 
-    // Renew subscription
-    public function renewSubscription(Request $request)
+    // Update a card by ID
+    public function update(Request $request, $id)
     {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'new_tickets' => 'required|integer|min:1',
-            'expires_at' => 'required|date|after:today',
-            'method' => 'required|string',
-        ]);
+        $card = Card::find($id);
 
-        $renewalPrice = 100; // Example fixed price for renewal
-
-        $card = Card::where('user_id', $request->user_id)->where('type', 'subscription')->first();
         if (!$card) {
-            return response()->json(['error' => 'Subscription card not found'], 404);
+            return response()->json(['message' => 'Card not found'], 404);
         }
 
-        $card->remaining_tickets += $request->new_tickets;
-        $card->expires_at = $request->expires_at;
-        $card->save();
-
-        // Record Payment
-        $payment = Payment::create([
-            'user_id' => $request->user_id,
-            'payable_id' => $card->id,
-            'payable_type' => Card::class,
-            'method' => $request->method,
-            'amount' => $renewalPrice,
+        $request->validate([
+            'type' => 'nullable|in:wallet,subscription',
+            'remaining_tickets' => 'nullable|integer',
+            'balance' => 'nullable|numeric',
+            'expires_at' => 'nullable|date',
         ]);
 
-        return response()->json(['card' => $card, 'payment' => $payment]);
+        $card->update($request->all());
+
+        return response()->json(['message' => 'Card updated successfully', 'card' => $card]);
     }
 
+    // Delete a card by ID
+    public function destroy($id)
+    {
+        $card = Card::find($id);
+
+        if (!$card) {
+            return response()->json(['message' => 'Card not found'], 404);
+        }
+
+        $card->delete();
+
+        return response()->json(['message' => 'Card deleted successfully']);
+    }
+
+    // Renew subscription or wallet
+    public function renew($id, Request $request)
+    {
+        $card = Card::find($id);
+
+        if (!$card) {
+            return response()->json(['message' => 'Card not found'], 404);
+        }
+
+        if ($card->type === 'wallet') {
+            $request->validate([
+                'remaining_tickets' => 'required|integer|min:1',
+            ]);
+
+            $card->remaining_tickets += $request->remaining_tickets;
+        } elseif ($card->type === 'subscription') {
+            $request->validate([
+                'expires_at' => 'required|date',
+            ]);
+
+            $card->expires_at = $request->expires_at;
+        } else {
+            return response()->json(['message' => 'Invalid card type'], 400);
+        }
+
+        $card->save();
+
+        return response()->json(['message' => 'Card renewed successfully', 'card' => $card]);
+    }
+
+    // Check expiration for a specific card using token
+    public function checkExpiresAtByToken(Request $request)
+    {
+        $request->validate([
+            'token' => 'required|string',
+        ]);
+
+        $card = Card::where('api_token', $request->token)->first();
+
+        if (!$card) {
+            return response()->json(['message' => 'Card not found'], 404);
+        }
+
+        return response()->json(['expires_at' => $card->expires_at]);
+    }
+
+    // Check expiration for all users
+    public function checkExpiresAtForAll()
+    {
+        $cards = Card::all(['id', 'user_id', 'expires_at']);
+
+        return response()->json($cards);
+    }
 }
+

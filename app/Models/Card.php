@@ -8,15 +8,12 @@ class Card extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'type', 'balance', 'remaining_tickets', 'expires_at'];
+    protected $fillable = ['user_id', 'type','remaining_tickets','balance', 'expires_at'];
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function payment()
-    {
-        return $this->morphOne(Payment::class, 'payable');
-    }
+
 }

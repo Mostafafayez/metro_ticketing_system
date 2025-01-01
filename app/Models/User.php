@@ -57,18 +57,14 @@ class User extends Authenticatable
 
     public function tickets()
     {
-        return $this->belongsToMany(Ticket::class)->withPivot('count','status_of_payment','status_of_received');
+        return $this->belongsToMany(Ticket::class)->withPivot('id','count','status_of_payment','status_of_received');
     }
 
     public function cards()
     {
-        return $this->hasMany(Card::class);
+        return $this->belongsTo(Card::class);
     }
 
-    public function payments()
-    {
-        return $this->hasMany(Payment::class);
-    }
 }
 
 

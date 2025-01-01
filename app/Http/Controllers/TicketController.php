@@ -127,19 +127,30 @@ class TicketController extends Controller
     /**
      * Update ticket status in pivot table.
      */
-    public function updateTicketStatus(Request $request, $ticketId)
+    public function updateTicketStatus(Request $request, $pivotId)
     {
+        // Validate the request
         $validated = $request->validate([
-
             'status_of_received' => 'required|boolean',
         ]);
 
+        // Get the authenticated user
         $user = Auth::user();
-        $user->tickets()->updateExistingPivot($ticketId, [
-            'status_of_received' => $validated['status_of_received'],
-        ]);
 
-        return response()->json(['message' => 'Ticket status updated successfully']);
+        // Find the pivot record using the pivot table's unique ID
+        $affectedRows = $user->tickets()
+            ->wherePivot('id', $pivotId) // Target the specific row in the pivot table
+            ->updateExistingPivot($pivotId, [
+                'status_of_received' => $validated['status_of_received'],
+            ]);
+
+        // Check if any row was updated
+        if ($affectedRows === 0) {
+            return response()->json(['message' => 'Record not found'], 404);
+        }
+
+        // Return a success response
+        return response()->json(['message' => 'Ticket status updated successfully',$affectedRows]);
     }
 
     /**

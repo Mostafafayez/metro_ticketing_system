@@ -12,7 +12,7 @@ protected $tabel='tickets';
 
     public function user()
     {
-        return $this->belongsToMany(User::class)->withPivot('count','status_of_payment','status_of_received');
+        return $this->belongsToMany(User::class)->withPivot('id','count','status_of_payment','status_of_received');
     }
 
     public function branch()

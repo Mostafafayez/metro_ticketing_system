@@ -29,7 +29,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/tickets/{id}', [TicketController::class, 'deleteTicket']);
     Route::post('/tickets/{id}', [TicketController::class, 'updateTicket']);
 
-    Route::put('/tickets/status/{ticketId}', [TicketController::class, 'updateTicketStatus']);
+    Route::post('/tickets/status/{ticketId}', [TicketController::class, 'updateTicketStatus']);
     Route::delete('/tickets/user/{ticketId}', [TicketController::class, 'deleteUserTicket']);
 });
 
@@ -51,3 +51,17 @@ Route::post('/cards/add-subscription', [CardController::class, 'addSubscription'
 
 // Get profit
 Route::get('/profit', [ProfitController::class, 'getProfit']);
+
+
+
+
+Route::prefix('cards')->group(function () {
+    Route::post('/', [CardController::class, 'store']);
+    Route::get('/', [CardController::class, 'index']);
+    Route::get('/user', [CardController::class, 'show']);
+    Route::post('/{id}', [CardController::class, 'update']);
+    Route::delete('/{id}', [CardController::class, 'destroy']);
+    Route::post('/{id}/renew', [CardController::class, 'renew']);
+    Route::post('/check-expiry', [CardController::class, 'checkExpiresAtByToken']);
+    Route::get('/check-expiry-all', [CardController::class, 'checkExpiresAtForAll']);
+});
