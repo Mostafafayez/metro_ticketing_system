@@ -81,9 +81,10 @@ class CardController extends Controller
     }
 
     // Renew subscription or wallet
-    public function renew($id, Request $request)
+    public function renew(Request $request)
     {
-        $card = Card::find($id);
+        $user = Auth::user();
+        $card = Card::where('user_id', $user->id)->first();
 
         if (!$card) {
             return response()->json(['message' => 'Card not found'], 404);
@@ -111,25 +112,12 @@ class CardController extends Controller
     }
 
     // Check expiration for a specific card using token
-    public function checkExpiresAtByToken(Request $request)
-    {
-        $request->validate([
-            'token' => 'required|string',
-        ]);
 
-        $card = Card::where('api_token', $request->token)->first();
-
-        if (!$card) {
-            return response()->json(['message' => 'Card not found'], 404);
-        }
-
-        return response()->json(['expires_at' => $card->expires_at]);
-    }
 
     // Check expiration for all users
     public function checkExpiresAtForAll()
     {
-        $cards = Card::all(['id', 'user_id', 'expires_at']);
+        $cards = Card::with('user',)->all(['id', 'user_id', 'expires_at']);
 
         return response()->json($cards);
     }

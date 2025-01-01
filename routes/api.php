@@ -61,7 +61,7 @@ Route::prefix('cards')->group(function () {
     Route::get('/user', [CardController::class, 'show'])->middleware('auth:sanctum');
     Route::post('/{id}', [CardController::class, 'update']);
     Route::delete('/{id}', [CardController::class, 'destroy']);
-    Route::post('/{id}/renew', [CardController::class, 'renew']);
+    Route::post('/renew/user', [CardController::class, 'renew'])->middleware('auth:sanctum');
     Route::post('/check-expiry', [CardController::class, 'checkExpiresAtByToken']);
     Route::get('/check-expiry-all', [CardController::class, 'checkExpiresAtForAll']);
 });
