@@ -36,7 +36,7 @@ class CardController extends Controller
     public function show()
     {
         $user = Auth::user();
-        $card = Card::with('user')->where('user_id',$user->id);
+        $card = Card::where('user_id',$user->id)->get();
 
         if (!$card) {
             return response()->json(['message' => 'Card not found'], 404);

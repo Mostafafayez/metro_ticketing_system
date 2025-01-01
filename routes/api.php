@@ -39,7 +39,7 @@ Route::get('/branches', [BranchController::class, 'index']);
 Route::post('/branches', [BranchController::class, 'store']);
 
 // Cards
-Route::get('/cards/{userId}', [CardController::class, 'show']);
+// Route::get('/cards/{userId}', [CardController::class, 'show']);
 Route::post('/cards/renew-subscription', [CardController::class, 'renewSubscription']);
 
 
@@ -58,7 +58,7 @@ Route::get('/profit', [ProfitController::class, 'getProfit']);
 Route::prefix('cards')->group(function () {
     Route::post('/', [CardController::class, 'store']);
     Route::get('/', [CardController::class, 'index']);
-    Route::get('/user', [CardController::class, 'show']);
+    Route::get('/user', [CardController::class, 'show'])->middleware('auth:sanctum');
     Route::post('/{id}', [CardController::class, 'update']);
     Route::delete('/{id}', [CardController::class, 'destroy']);
     Route::post('/{id}/renew', [CardController::class, 'renew']);
