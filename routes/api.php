@@ -26,7 +26,7 @@ Route::post('/{id}', [TicketController::class, 'updateTicket']);
 
 
 });
-
+// Tickets-user
 Route::middleware('auth:sanctum')->prefix('tickets/user')->group(function () {
 Route::post('/buy', [TicketController::class, 'buyTicket']);
 Route::get('/', [TicketController::class, 'getTicketsByUser']);
@@ -34,13 +34,14 @@ Route::get('/all', [TicketController::class, 'getTickets']);
 Route::get('/approve-status/{ticket_user_id}', [TicketController::class, 'approveStatus']);
 Route::delete('/{ticket_user_id}', [TicketController::class, 'deleteUserTicket']);
 });
+
+
+
 // Branches
 Route::middleware('auth:sanctum')->prefix('branches')->group(function () {
 Route::get('/', [BranchController::class, 'index']);
 Route::post('/', [BranchController::class, 'store']);
 });
-
-
 
 // Cards
 Route::middleware('auth:sanctum')->prefix('cards')->group(function () {

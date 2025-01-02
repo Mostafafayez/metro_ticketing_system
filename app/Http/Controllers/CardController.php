@@ -19,6 +19,12 @@ class CardController extends Controller
             'balance' => 'nullable|numeric',
             'expires_at' => 'nullable|date',
         ]);
+            // Check if a card already exists for the user
+            $existingCard = Card::where('user_id', $request->user_id)->first();
+
+            if ($existingCard) {
+                return response()->json(['message' => 'User already has a card.'], 422);
+            }
 
         $card = Card::create($request->all());
 
