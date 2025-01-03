@@ -18,16 +18,16 @@ class TicketController extends Controller
             'name' => 'required|string|max:255',
             'stations_count' => 'required|integer',
             'price' => 'required|numeric',
-            // 'image' => 'required|file|mimes:jpg,jpeg,png|max:2048',
+            'image' => 'required|file|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        // $imagePath = $request->file('image')->store('tickets', 'public');
+        $imagePath = $request->file('image')->store('tickets', 'public');
 
         $ticket = Ticket::create([
             'name' => $validated['name'],
             'stations_count' => $validated['stations_count'],
             'price' => $validated['price'],
-            // 'image' => $imagePath,
+            'image' => $imagePath,
         ]);
 
         return response()->json(['message' => 'Ticket created successfully', 'ticket' => $ticket], 201);
