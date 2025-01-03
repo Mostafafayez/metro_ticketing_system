@@ -14,6 +14,7 @@ use App\Http\Controllers\UserController;
 //user
 Route::post('/signup', [UserController::class, 'signup']);
 Route::post('/login', [UserController::class, 'login']);
+Route::post('/logout', [UserController::class, 'logout']);
 Route::put('/users/{id}/update-password', [UserController::class, 'updatePassword']);
 
 

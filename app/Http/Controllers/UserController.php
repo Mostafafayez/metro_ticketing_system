@@ -89,4 +89,15 @@ class UserController extends Controller
 
         return response()->json(['message' => 'Password updated successfully'], 200);
     }
+
+    /**
+     * logout
+     */
+    public function logout(Request $request)
+{
+    // Revoke the current user's token
+    $request->user()->currentAccessToken()->delete();
+
+    return response()->json(['message' => 'Logout successful'], 200);
+}
 }
