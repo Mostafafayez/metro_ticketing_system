@@ -10,6 +10,9 @@ class Ticket extends Model
 protected $tabel='tickets';
     protected $fillable = ['name', 'stations_count', 'price','image'];
 
+    protected $appends = ['full_image_url'];
+
+
     public function user()
     {
         return $this->belongsToMany(User::class)->withPivot('id','count','status_of_payment','status_of_received');
@@ -18,6 +21,11 @@ protected $tabel='tickets';
     public function branch()
     {
         return $this->belongsTo(Branch::class);
+    }
+
+    public function getFullImageUrlAttribute()
+    {
+        return asset('storage/' . $this->image);
     }
 
 }
