@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Card;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -13,20 +14,35 @@ class CardController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'user_id' => 'required|integer',
+            'national_id' => 'required|string|exists:users,national_id',
             'type' => 'required|in:wallet,subscription',
             'remaining_tickets' => 'nullable|integer',
             'balance' => 'nullable|numeric',
             'expires_at' => 'nullable|date',
         ]);
-            // Check if a card already exists for the user
-            $existingCard = Card::where('user_id', $request->user_id)->first();
 
-            if ($existingCard) {
-                return response()->json(['message' => 'User already has a card.'], 422);
-            }
+        // Find the user by national ID
+        $user = User::where('national_id', $request->national_id)->first();
 
-        $card = Card::create($request->all());
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
+
+        // Check if a card already exists for the user
+        $existingCard = Card::where('user_id', $user->id)->first();
+
+        if ($existingCard) {
+            return response()->json(['message' => 'User already has a card.'], 422);
+        }
+
+        // Create the card
+        $card = Card::create([
+            'user_id' => $user->id,
+            'type' => $request->type,
+            'remaining_tickets' => $request->remaining_tickets,
+            'balance' => $request->balance,
+            'expires_at' => $request->expires_at,
+        ]);
 
         return response()->json(['message' => 'Card created successfully', 'card' => $card], 201);
     }
